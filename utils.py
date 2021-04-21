@@ -1,12 +1,16 @@
 import copy
 import json
-import pandas as pd
-from pandas import DataFrame
-from neuralprophet import NeuralProphet, set_random_seed
 
+import pandas as pd
+from neuralprophet import NeuralProphet, set_random_seed
+from pandas import DataFrame
 
 """General definitions"""
-BASES = ['USD', 'EUR', 'BRL']
+BASES = sorted(['USD', 'EUR', 'BRL', 'CHF', 'GBP', 'ARS', 'CAD', 'CNY', 'JPY'])
+BASES_DESCRIPTIONS = {'USD': "United States Dollar", 'EUR': "Euro", 'BRL': "Brazilian Real", 'CHF': "Swiss Franc",
+                      'GBP': "British Pound Sterling", 'ARS': "Argentine Peso", 'CAD': "Canadian Dollar",
+                      'CNY': "Chinese Yuan", 'JPY': "Japanese Yen"}
+DAYS_OF_PREDICTION = 15
 set_random_seed(0)
 
 
@@ -30,15 +34,10 @@ def bases_verification_str(base: str) -> str:
     :param base: Base currency that will be used in convertion
     :return:
     >>> bases_verification_str('BRL')
-    'USD,EUR'
+    'USD,EUR,CHF,BTC'
     """
     symbols = copy.copy(BASES)
-    if base == 'BRL':
-        symbols.remove('BRL')
-    elif base == 'USD':
-        symbols.remove('USD')
-    elif base == 'EUR':
-        symbols.remove('EUR')
+    symbols.remove(base)
 
     return ','.join(symbols)
 
@@ -49,16 +48,10 @@ def bases_verification_lst(base: str) -> list:
     :param base: Base currency that will be used in convertion
     :return:
     >>> bases_verification_lst('BRL')
-    '[USD,EUR]'
+    ['USD', 'EUR', 'CHF', 'BTC']
     """
     symbols = copy.copy(BASES)
-    if base == 'BRL':
-        symbols.remove('BRL')
-    elif base == 'USD':
-        symbols.remove('USD')
-    elif base == 'EUR':
-        symbols.remove('EUR')
-
+    symbols.remove(base)
     return symbols
 
 
@@ -88,7 +81,7 @@ def predictions(df: DataFrame) -> DataFrame:
     """
     m = NeuralProphet()
     m.fit(df, freq='D')
-    future = m.make_future_dataframe(df, periods=7)
+    future = m.make_future_dataframe(df, periods=DAYS_OF_PREDICTION)
     forecast = m.predict(future)
     forecast['ds'] = pd.to_datetime(forecast['ds']).dt.strftime('%Y-%m-%d')
     forecast = forecast.set_index('ds')
