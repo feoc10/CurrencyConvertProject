@@ -2,7 +2,6 @@ import copy
 import json
 
 import pandas as pd
-from neuralprophet import NeuralProphet, set_random_seed
 from pandas import DataFrame
 
 """General definitions"""
@@ -11,7 +10,6 @@ BASES_DESCRIPTIONS = {'USD': "United States Dollar", 'EUR': "Euro", 'BRL': "Braz
                       'GBP': "British Pound Sterling", 'ARS': "Argentine Peso", 'CAD': "Canadian Dollar",
                       'CNY': "Chinese Yuan", 'JPY': "Japanese Yen"}
 DAYS_OF_PREDICTION = 15
-set_random_seed(0)
 
 
 def cleaner_function(json_data: json, returned_keys_list: list) -> dict:
@@ -71,20 +69,3 @@ def divide_currencies(df: DataFrame, base: str) -> dict:
         df_aux['y'] = df[currency]
         dataframes_dict[currency] = df_aux
     return dataframes_dict
-
-
-def predictions(df: DataFrame) -> DataFrame:
-    """
-    Make predictions about
-    :param df: Dataframe to make the predictions
-    :return:
-    """
-    m = NeuralProphet()
-    m.fit(df, freq='D')
-    future = m.make_future_dataframe(df, periods=DAYS_OF_PREDICTION)
-    forecast = m.predict(future)
-    forecast['ds'] = pd.to_datetime(forecast['ds']).dt.strftime('%Y-%m-%d')
-    forecast = forecast.set_index('ds')
-    forecast.rename(columns={'yhat1': 'currency'}, inplace=True)
-    forecast = forecast.round(2)
-    return forecast

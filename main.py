@@ -5,7 +5,8 @@ import pandas as pd
 import streamlit as st
 
 import requests_functions
-from utils import BASES, predictions, divide_currencies, DAYS_OF_PREDICTION, BASES_DESCRIPTIONS
+from predictions import predictions
+from utils import BASES, divide_currencies, DAYS_OF_PREDICTION, BASES_DESCRIPTIONS
 
 TODAY = date.today()
 FIFTEEN_DAYS_BEFORE = TODAY - datetime.timedelta(15)
